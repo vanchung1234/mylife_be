@@ -1,14 +1,145 @@
-server:
-  port: 8080
-
+# ==============================
+# SPRING CORE
+# ==============================
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/mylife_db
-    username: postgres
-    password: 123456
-    driver-class-name: org.postgresql.Driver
+  application:
+    name: mylife-backend
 
+  profiles:
+    active: ${SPRING_PROFILE:dev}
+
+  # ==============================
+  # DATABASE - POSTGRESQL
+  # ==============================
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mylife}
+    username: ${DB_USER:mylife_user}
+    password: ${DB_PASSWORD:mylife_pass}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # ==============================
+  # JPA / HIBERNATE
+  # ==============================
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+    show-sql: false
+
+  # ==============================
+  # FLYWAY
+  # ==============================
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  # ==============================
+  # EMAIL
+  # ==============================
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+  # ==============================
+  # FILE UPLOAD
+  # ==============================
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  # ==============================
+  # OAUTH2 GOOGLE
+  # ==============================
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid
+              - email
+              - profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+            client-name: Google
+
+# ==============================
+# SERVER
+# ==============================
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# ==============================
+# LOGGING
+# ==============================
+logging:
+  level:
+    com.mylife: DEBUG
+    org.springframework.security: INFO
+
+# ==============================
+# JWT
+# ==============================
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration: 900000
+  refresh-token-expiration: 604800000
+
+# ==============================
+# APP CONFIG
+# ==============================
+app:
+  base-url: ${BASE_URL:http://localhost:8080}
+  frontend-url: ${FRONTEND_URL:mylife://auth}
+
+  storage:
+    type: minio
+    minio:
+      url: ${MINIO_URL:http://localhost:9000}
+      access-key: ${MINIO_ACCESS_KEY:minioadmin}
+      secret-key: ${MINIO_SECRET_KEY:minioadmin}
+      bucket: ${MINIO_BUCKET:mylife}
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      model: gpt-4-turbo-preview
+
+# ==============================
+# ACTUATOR
+# ==============================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+# ==============================
+# FCM
+# ==============================
+fcm:
+  enabled: ${FCM_ENABLED:true}
+  credentials-path: ${FCM_CREDENTIALS_PATH:classpath:firebase-service-account.json}

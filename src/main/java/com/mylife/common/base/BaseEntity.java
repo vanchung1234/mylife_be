@@ -5,93 +5,54 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/*
- * @MappedSuperclass
- * Nghĩa là:
- * - Class này KHÔNG phải là một bảng trong database.
- * - Nhưng các class khác kế thừa nó sẽ được thừa hưởng các field này.
- *
- * Ví dụ:
- *   public class User extends BaseEntity
- *
- * → Table "user" sẽ có id, createdAt, updatedAt...
+/**
+ * Lớp cơ sở cho tất cả các Entity.
+ * Cung cấp các trường chung:
+ * - id: UUID (tự động sinh)
+ * - createdAt: thời gian tạo
+ * - updatedAt: thời gian cập nhật gần nhất
+ * 
+ * Sử dụng @MappedSuperclass để JPA hiểu rằng lớp này không phải entity riêng
+ * mà chỉ cung cấp ánh xạ cho các lớp con.
  */
-@MappedSuperclass
-@Getter   // Lombok tự sinh getter cho tất cả field
-@Setter   // Lombok tự sinh setter cho tất cả field
+@Getter
+@Setter
+@MappedSuperclass // Đánh dấu đây là lớp cơ sở, không tạo bảng riêng
+@EntityListeners(AuditingEntityListener.class) // Lắng nghe sự kiện auditing của JPA
 public abstract class BaseEntity {
 
-    /*
-     * @Id → Đây là khóa chính (Primary Key)
-     *
-     * @GeneratedValue(strategy = GenerationType.UUID)
-     * → Tự động tạo ID dạng UUID
-     *
-     * Vì sao dùng UUID thay vì Long?
-     * - Không đoán được ID
-     * - Không lộ số lượng record
-     * - Tốt cho microservice / distributed system
-     */
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID) // Tự động sinh UUID
+    @Column(columnDefinition = "UUID") // Chỉ rõ kiểu dữ liệu cột là UUID (PostgreSQL)
     private UUID id;
 
-    /*
-     * @CreationTimestamp
-     * → Hibernate tự set thời gian khi record được tạo
-     *
-     * nullable = false
-     * → Không được null trong database
-     *
-     * updatable = false
-     * → Không cho phép sửa sau khi tạo
-     */
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @CreationTimestamp // Hibernate tự động set thời gian khi insert
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    /*
-     * @UpdateTimestamp
-     * → Hibernate tự cập nhật thời gian mỗi khi entity bị update
-     */
-    @UpdateTimestamp
+    @UpdateTimestamp // Hibernate tự động set thời gian khi update
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    /*
-     * createdBy
-     * → Lưu ID của user tạo record
-     *
-     * updatable = false
-     * → Không cho sửa sau khi tạo
-     *
-     * Sau này ta sẽ dùng AuditorAware
-     * để tự động set field này.
+    /**
+     * Phương thức này được gọi trước khi entity được persist (insert) lần đầu.
+     * Có thể dùng để set các giá trị mặc định.
      */
-    @Column(updatable = false)
-    private UUID createdBy;
+    @PrePersist
+    protected void onCreate() {
+        // Nếu cần set thêm giá trị gì trước khi lưu
+    }
 
-    /*
-     * updatedBy
-     * → Lưu ID của user sửa record gần nhất
+    /**
+     * Phương thức này được gọi trước khi entity được update.
      */
-    private UUID updatedBy;
-
-    /*
-     * deleted
-     * → Soft delete flag
-     *
-     * Thay vì xóa cứng record khỏi database,
-     * ta chỉ đánh dấu deleted = true
-     *
-     * Vì sao?
-     * - Có thể khôi phục lại
-     * - Giữ lịch sử
-     * - Phù hợp hệ thống enterprise
-     */
-    @Column(nullable = false)
-    private Boolean deleted = false;
+    @PreUpdate
+    protected void onUpdate() {
+        // Nếu cần xử lý trước khi update
+    }
 }
