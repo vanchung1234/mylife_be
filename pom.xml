@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <!-- Spring Boot cung cấp một parent POM chứa các cấu hình mặc định 
          và quản lý version cho các thư viện tương thích với nhau -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.11</version>  <!-- Phiên bản Spring Boot bạn yêu cầu -->
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
     <!-- Thông tin về project của chúng ta -->
-	<groupId>com.mylife_be</groupId>
-	<artifactId>mylife</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>mylife</name>
+    <groupId>com.mylife_be</groupId>
+    <artifactId>mylife</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>mylife</name>
     <description>Personal Life Management System</description>
 
     <!-- Định nghĩa các phiên bản cho các thư viện mà chúng ta tự quản lý -->
@@ -28,13 +28,14 @@
         <jjwt.version>0.12.6</jjwt.version>  <!-- JWT cho xác thực -->
         <postgresql.version>42.7.5</postgresql.version>  <!-- Driver PostgreSQL -->
         <flyway.version>11.3.4</flyway.version>  <!-- Flyway cho migration database -->
-        <testcontainers.version>1.20.4</testcontainers.version>  <!-- Testcontainers cho integration test -->
+        <testcontainers.version>1.20.4</testcontainers.version>  <!-- Testcontainers cho integration
+        test -->
     </properties>
 
     <!-- Danh sách các thư viện mà project sử dụng -->
     <dependencies>
         <!-- Spring Boot Starters: các gói khởi đầu, tự động cấu hình các thư viện liên quan -->
-        
+
         <!-- 1. Starter cho web REST API -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -226,6 +227,11 @@
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>me.paulschwarz</groupId>
+            <artifactId>spring-dotenv</artifactId>
+            <version>4.0.0</version>
+        </dependency>
     </dependencies>
 
     <!-- Cấu hình quá trình build -->
@@ -244,7 +250,7 @@
                     </excludes>
                 </configuration>
             </plugin>
-            
+
             <!-- Plugin cho compiler, cấu hình annotation processor (Lombok, MapStruct) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -267,7 +273,7 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-            
+
             <!-- Plugin cho Flyway (chạy migration bằng command line) -->
             <plugin>
                 <groupId>org.flywaydb</groupId>

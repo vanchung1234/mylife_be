@@ -142,4 +142,7 @@ management:
 # ==============================
 fcm:
   enabled: ${FCM_ENABLED:true}
-  credentials-path: ${FCM_CREDENTIALS_PATH:classpath:firebase-service-account.json}
+  # Đường dẫn file credentials (tùy chọn). Ví dụ local: classpath:firebase-service-account.json hoặc /app/firebase.json
+  credentials-path: ${FCM_CREDENTIALS_PATH:}
+  # Nội dung JSON credentials (tùy chọn), dùng khi deploy (ví dụ Railway) qua biến môi trường FCM_CREDENTIALS_JSON
+  credentials-json: ${FCM_CREDENTIALS_JSON:}

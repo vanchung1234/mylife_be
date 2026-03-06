@@ -14,6 +14,8 @@ import org.springframework.util.StringUtils;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Cấu hình Firebase Admin SDK để gửi notification qua FCM.
@@ -27,6 +29,9 @@ public class FirebaseConfig {
 
     @Value("${fcm.credentials-path:}")
     private String credentialsPath;
+
+    @Value("${fcm.credentials-json:}")
+    private String credentialsJson;
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
@@ -49,6 +54,10 @@ public class FirebaseConfig {
                 serviceAccountStream = new FileInputStream(credentialsPath);
             }
             credentials = GoogleCredentials.fromStream(serviceAccountStream);
+        } else if (StringUtils.hasText(credentialsJson)) {
+            // Load credentials directly from JSON string (e.g., environment variable)
+            InputStream jsonStream = new ByteArrayInputStream(credentialsJson.getBytes(StandardCharsets.UTF_8));
+            credentials = GoogleCredentials.fromStream(jsonStream);
         } else {
             // Sử dụng GOOGLE_APPLICATION_CREDENTIALS từ biến môi trường
             credentials = GoogleCredentials.getApplicationDefault();
